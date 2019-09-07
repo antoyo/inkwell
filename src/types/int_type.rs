@@ -1,7 +1,6 @@
 use llvm_sys::core::{LLVMInt1Type, LLVMInt8Type, LLVMInt16Type, LLVMInt32Type, LLVMInt64Type, LLVMConstInt, LLVMConstAllOnes, LLVMIntType, LLVMGetIntTypeWidth, LLVMConstIntOfStringAndSize, LLVMConstIntOfArbitraryPrecision, LLVMConstArray};
 use llvm_sys::execution_engine::LLVMCreateGenericValueOfInt;
 use llvm_sys::prelude::{LLVMTypeRef, LLVMValueRef};
-use regex::Regex;
 
 use crate::AddressSpace;
 use crate::context::ContextRef;
@@ -44,13 +43,23 @@ impl TryFrom<u8> for StringRadix {
 
 impl StringRadix {
     /// Create a Regex that matches valid strings for the given radix.
-    pub fn to_regex(&self) -> Regex {
+    pub fn is_match(&self, slice: &str) -> bool {
+        if slice.is_empty() {
+            return false;
+        }
+        let mut chars = slice.chars();
+        if slice.starts_with(&['-', '+'] as &[char]) {
+            if slice.len() == 1 {
+                return false;
+            }
+            chars.next();
+        }
         match self {
-            StringRadix::Binary => Regex::new(r"^[-+]?[01]+$").unwrap(),
-            StringRadix::Octal => Regex::new(r"^[-+]?[0-7]+$").unwrap(),
-            StringRadix::Decimal => Regex::new(r"^[-+]?[0-9]+$").unwrap(),
-            StringRadix::Hexadecimal => Regex::new(r"^[-+]?[0-9abcdefABCDEF]+$").unwrap(),
-            StringRadix::Alphanumeric => Regex::new(r"^[-+]?[0-9[:alpha:]]+$").unwrap(),
+            StringRadix::Binary => chars.all(|char| char.is_digit(2)),
+            StringRadix::Octal => chars.all(|char| char.is_digit(8)),
+            StringRadix::Decimal => chars.all(|char| char.is_digit(10)),
+            StringRadix::Hexadecimal => chars.all(|char| char.is_digit(16)),
+            StringRadix::Alphanumeric => chars.all(|char| char.is_ascii_alphanumeric()),
         }
     }
 }
@@ -276,7 +285,7 @@ impl IntType {
     /// assert!(i8_val.is_none());
     /// ```
     pub fn const_int_from_string(&self, slice: &str, radix: StringRadix) -> Option<IntValue> {
-        if !radix.to_regex().is_match(slice) {
+        if !radix.is_match(slice) {
             return None
         }
         let value = unsafe {

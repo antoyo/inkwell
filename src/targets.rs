@@ -265,42 +265,6 @@ impl Target {
         }
     }
 
-    // TODOC: Called AMDGPU in 3.7+
-    #[cfg(feature = "llvm3-6")]
-    pub fn initialize_r600(config: &InitializationConfig) {
-        use llvm_sys::target::{
-            LLVMInitializeR600AsmParser, LLVMInitializeR600AsmPrinter, LLVMInitializeR600Target,
-            LLVMInitializeR600TargetInfo, LLVMInitializeR600TargetMC,
-        };
-
-        if config.base {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeR600Target() };
-        }
-
-        if config.info {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeR600TargetInfo() };
-        }
-
-        if config.asm_printer {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeR600AsmPrinter() };
-        }
-
-        if config.asm_parser {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeR600AsmParser() };
-        }
-
-        if config.machine_code {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeR600TargetMC() };
-        }
-
-        // Disassembler Status Unknown
-    }
-
     // TODOC: Called R600 in 3.6
     #[cfg(feature = "target-amdgpu")]
     pub fn initialize_amd_gpu(config: &InitializationConfig) {
