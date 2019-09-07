@@ -1,10 +1,10 @@
-use either::Either;
 use llvm_sys::LLVMTypeKind;
 use llvm_sys::core::{LLVMIsTailCall, LLVMSetTailCall, LLVMGetTypeKind, LLVMTypeOf, LLVMSetInstructionCallConv, LLVMGetInstructionCallConv, LLVMSetInstrParamAlignment};
 use llvm_sys::prelude::LLVMValueRef;
 
 use crate::attributes::{Attribute};
 use crate::attributes::AttributeLoc;
+use crate::either::Either;
 use crate::support::LLVMString;
 use crate::values::{AsValueRef, BasicValueEnum, InstructionValue, Value};
 use crate::values::FunctionValue;

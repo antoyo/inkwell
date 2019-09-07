@@ -1,4 +1,3 @@
-use either::Either;
 use llvm_sys::target::{
     LLVMABIAlignmentOfType, LLVMABISizeOfType, LLVMByteOrder, LLVMByteOrdering,
     LLVMCallFrameAlignmentOfType, LLVMCopyStringRepOfTargetData, LLVMCreateTargetData,
@@ -21,6 +20,7 @@ use llvm_sys::target_machine::{
 
 use crate::context::Context;
 use crate::data_layout::DataLayout;
+use crate::either::Either;
 use crate::memory_buffer::MemoryBuffer;
 use crate::module::Module;
 use crate::passes::PassManager;

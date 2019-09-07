@@ -11,7 +11,6 @@
 //! * Most functions which take a string slice as input may possibly panic in the unlikely event that a c style string cannot be created based on it. (IE if your slice already has a null byte in it)
 
 #![deny(missing_debug_implementations)]
-extern crate either;
 extern crate libc;
 extern crate llvm_sys;
 #[macro_use]
@@ -31,6 +30,7 @@ pub mod builder;
 #[deny(missing_docs)]
 pub mod context;
 pub mod data_layout;
+pub mod either;
 pub mod execution_engine;
 pub mod memory_buffer;
 #[deny(missing_docs)]

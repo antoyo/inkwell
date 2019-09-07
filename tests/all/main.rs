@@ -1,7 +1,5 @@
 //! Having a main.rs in a directory w/ mods will force tests to be built in a single binary
 
-extern crate either;
-
 mod test_attributes;
 mod test_basic_block;
 mod test_builder;

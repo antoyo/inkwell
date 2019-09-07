@@ -1,8 +1,8 @@
-use either::{Either, Either::{Left, Right}};
 use llvm_sys::core::{LLVMGetNextUse, LLVMGetUser, LLVMGetUsedValue, LLVMIsABasicBlock, LLVMValueAsBasicBlock};
 use llvm_sys::prelude::LLVMUseRef;
 
 use crate::basic_block::BasicBlock;
+use crate::either::{Either, Either::{Left, Right}};
 use crate::values::{BasicValueEnum, InstructionValue};
 
 /// A usage of a `BasicValue` in an `InstructionValue`.
