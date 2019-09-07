@@ -12,7 +12,7 @@ use crate::values::{AsValueRef, ArrayValue, GenericValue, IntValue};
 use std::convert::TryFrom;
 
 /// How to interpret a string or digits used to construct an integer constant.
-#[derive(Clone, Copy, Debug, EnumAsGetters, EnumIntoGetters, EnumToGetters, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum StringRadix {
     /// Binary 0 or 1
     Binary = 2,

@@ -8,7 +8,7 @@ use crate::values::{IntValue, FunctionValue, PointerValue, VectorValue, ArrayVal
 
 macro_rules! enum_value_set {
     ($enum_name:ident: $($args:ident),*) => (
-        #[derive(Debug, EnumAsGetters, EnumIntoGetters, EnumIsA, Clone, Copy, PartialEq, Eq, Hash)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         pub enum $enum_name {
             $(
                 $args($args),
@@ -115,6 +115,69 @@ impl BasicValueEnum {
 
         BasicTypeEnum::new(type_)
     }
+
+    pub fn is_float_value(&self) -> bool {
+        match *self {
+            BasicValueEnum::FloatValue(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_int_value(&self) -> bool {
+        match *self {
+            BasicValueEnum::IntValue(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_pointer_value(&self) -> bool {
+        match *self {
+            BasicValueEnum::PointerValue(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn into_array_value(self) -> ArrayValue {
+        match self {
+            BasicValueEnum::ArrayValue(value) => value,
+            _ => panic!("not a array value"),
+        }
+    }
+
+    pub fn into_float_value(self) -> FloatValue {
+        match self {
+            BasicValueEnum::FloatValue(value) => value,
+            _ => panic!("not a float value"),
+        }
+    }
+
+    pub fn into_int_value(self) -> IntValue {
+        match self {
+            BasicValueEnum::IntValue(value) => value,
+            _ => panic!("not a int value"),
+        }
+    }
+
+    pub fn into_pointer_value(self) -> PointerValue {
+        match self {
+            BasicValueEnum::PointerValue(value) => value,
+            _ => panic!("not a pointer value"),
+        }
+    }
+
+    pub fn into_struct_value(self) -> StructValue {
+        match self {
+            BasicValueEnum::StructValue(value) => value,
+            _ => panic!("not a struct value"),
+        }
+    }
+
+    pub fn into_vector_value(self) -> VectorValue {
+        match self {
+            BasicValueEnum::VectorValue(value) => value,
+            _ => panic!("not a vector value"),
+        }
+    }
 }
 
 impl AggregateValueEnum {
@@ -127,6 +190,20 @@ impl AggregateValueEnum {
             LLVMTypeKind::LLVMArrayTypeKind => AggregateValueEnum::ArrayValue(ArrayValue::new(value)),
             LLVMTypeKind::LLVMStructTypeKind => AggregateValueEnum::StructValue(StructValue::new(value)),
             _ => unreachable!("The given type is not an aggregate type."),
+        }
+    }
+
+    pub fn is_array_value(&self) -> bool {
+        match *self {
+            AggregateValueEnum::ArrayValue(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_struct_value(&self) -> bool {
+        match *self {
+            AggregateValueEnum::StructValue(_) => true,
+            _ => false,
         }
     }
 }
@@ -151,6 +228,27 @@ impl BasicMetadataValueEnum {
             LLVMTypeKind::LLVMVectorTypeKind => BasicMetadataValueEnum::VectorValue(VectorValue::new(value)),
             LLVMTypeKind::LLVMMetadataTypeKind => BasicMetadataValueEnum::MetadataValue(MetadataValue::new(value)),
             _ => unreachable!("Unsupported type"),
+        }
+    }
+
+    pub fn as_float_value(&self) -> &FloatValue {
+        match *self {
+            BasicMetadataValueEnum::FloatValue(ref value) => value,
+            _ => panic!("not a float value"),
+        }
+    }
+
+    pub fn as_int_value(&self) -> &IntValue {
+        match *self {
+            BasicMetadataValueEnum::IntValue(ref value) => value,
+            _ => panic!("not a int value"),
+        }
+    }
+
+    pub fn as_metadata_value(&self) -> &MetadataValue {
+        match *self {
+            BasicMetadataValueEnum::MetadataValue(ref value) => value,
+            _ => panic!("not a metadata value"),
         }
     }
 }

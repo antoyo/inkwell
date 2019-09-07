@@ -5,73 +5,73 @@ use llvm_sys::prelude::LLVMTypeRef;
 use crate::types::{IntType, VoidType, FunctionType, PointerType, VectorType, ArrayType, StructType, FloatType};
 use crate::types::traits::AsTypeRef;
 
-macro_rules! enum_type_set {
-    ($(#[$enum_attrs:meta])* $enum_name:ident: { $($(#[$variant_attrs:meta])* $args:ident,)+ }) => (
-        #[derive(Debug, EnumAsGetters, EnumIntoGetters, EnumIsA, PartialEq, Eq, Clone, Copy)]
-        $(#[$enum_attrs])*
-        pub enum $enum_name {
-            $(
-                $(#[$variant_attrs])*
-                $args($args),
-            )*
-        }
-
-        impl AsTypeRef for $enum_name {
-            fn as_type_ref(&self) -> LLVMTypeRef {
-                match *self {
-                    $(
-                        $enum_name::$args(ref t) => t.as_type_ref(),
-                    )*
-                }
-            }
-        }
-
-        $(
-            impl From<$args> for $enum_name {
-                fn from(value: $args) -> $enum_name {
-                    $enum_name::$args(value)
-                }
-            }
-        )*
-    );
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum AnyTypeEnum {
+    /// A contiguous homogeneous container type.
+    ArrayType(ArrayType),
+    /// A floating point type.
+    FloatType(FloatType),
+    /// A function return and parameter definition.
+    FunctionType(FunctionType),
+    /// An integer type.
+    IntType(IntType),
+    /// A pointer type.
+    PointerType(PointerType),
+    /// A contiguous heterogeneous container type.
+    StructType(StructType),
+    /// A contiguous homogeneous "SIMD" container type.
+    VectorType(VectorType),
+    /// A valueless type.
+    VoidType(VoidType),
 }
 
-enum_type_set! {
-    /// A wrapper for any `BasicType`, `VoidType`, or `FunctionType`.
-    AnyTypeEnum: {
-        /// A contiguous homogeneous container type.
-        ArrayType,
-        /// A floating point type.
-        FloatType,
-        /// A function return and parameter definition.
-        FunctionType,
-        /// An integer type.
-        IntType,
-        /// A pointer type.
-        PointerType,
-        /// A contiguous heterogeneous container type.
-        StructType,
-        /// A contiguous homogeneous "SIMD" container type.
-        VectorType,
-        /// A valueless type.
-        VoidType,
+impl AsTypeRef for AnyTypeEnum {
+    fn as_type_ref(&self) -> LLVMTypeRef {
+        match *self {
+            AnyTypeEnum::ArrayType(ref t) => t.as_type_ref(),
+            AnyTypeEnum::FloatType(ref t) => t.as_type_ref(),
+            AnyTypeEnum::FunctionType(ref t) => t.as_type_ref(),
+            AnyTypeEnum::IntType(ref t) => t.as_type_ref(),
+            AnyTypeEnum::PointerType(ref t) => t.as_type_ref(),
+            AnyTypeEnum::StructType(ref t) => t.as_type_ref(),
+            AnyTypeEnum::VectorType(ref t) => t.as_type_ref(),
+            AnyTypeEnum::VoidType(ref t) => t.as_type_ref(),
+        }
     }
 }
-enum_type_set! {
-    /// A wrapper for any `BasicType`.
-    BasicTypeEnum: {
-        /// A contiguous homogeneous container type.
-        ArrayType,
-        /// A floating point type.
-        FloatType,
-        // An integer type.
-        IntType,
-        /// A pointer type.
-        PointerType,
-        /// A contiguous heterogeneous container type.
-        StructType,
-        /// A contiguous homogeneous "SIMD" container type.
-        VectorType,
+
+impl From<IntType> for AnyTypeEnum {
+    fn from(value: IntType) -> AnyTypeEnum {
+        AnyTypeEnum::IntType(value)
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum BasicTypeEnum {
+    /// A contiguous homogeneous container type.
+    ArrayType(ArrayType),
+    /// A floating point type.
+    FloatType(FloatType),
+    // An integer type.
+    IntType(IntType),
+    /// A pointer type.
+    PointerType(PointerType),
+    /// A contiguous heterogeneous container type.
+    StructType(StructType),
+    /// A contiguous homogeneous "SIMD" container type.
+    VectorType(VectorType),
+}
+
+impl AsTypeRef for BasicTypeEnum {
+    fn as_type_ref(&self) -> LLVMTypeRef {
+        match *self {
+            BasicTypeEnum::ArrayType(ref t) => t.as_type_ref(),
+            BasicTypeEnum::FloatType(ref t) => t.as_type_ref(),
+            BasicTypeEnum::IntType(ref t) => t.as_type_ref(),
+            BasicTypeEnum::PointerType(ref t) => t.as_type_ref(),
+            BasicTypeEnum::StructType(ref t) => t.as_type_ref(),
+            BasicTypeEnum::VectorType(ref t) => t.as_type_ref(),
+        }
     }
 }
 
@@ -100,6 +100,55 @@ impl AnyTypeEnum {
             LLVMTypeKind::LLVMX86_MMXTypeKind => panic!("FIXME: Unsupported type: MMX"),
             #[cfg(not(any(feature = "llvm3-6", feature = "llvm3-7")))]
             LLVMTypeKind::LLVMTokenTypeKind => panic!("FIXME: Unsupported type: Token"),
+        }
+    }
+
+    pub fn into_array_type(self) -> ArrayType {
+        match self {
+            AnyTypeEnum::ArrayType(typ) => typ,
+            _ => panic!("enum not a array type"),
+        }
+    }
+
+    pub fn into_function_type(self) -> FunctionType {
+        match self {
+            AnyTypeEnum::FunctionType(typ) => typ,
+            _ => panic!("enum not a function type"),
+        }
+    }
+
+    pub fn into_float_type(self) -> FloatType {
+        match self {
+            AnyTypeEnum::FloatType(typ) => typ,
+            _ => panic!("enum not a float type"),
+        }
+    }
+
+    pub fn into_int_type(self) -> IntType {
+        match self {
+            AnyTypeEnum::IntType(typ) => typ,
+            _ => panic!("enum not a int type"),
+        }
+    }
+
+    pub fn into_pointer_type(self) -> PointerType {
+        match self {
+            AnyTypeEnum::PointerType(typ) => typ,
+            _ => panic!("enum not a pointer type"),
+        }
+    }
+
+    pub fn into_struct_type(self) -> StructType {
+        match self {
+            AnyTypeEnum::StructType(typ) => typ,
+            _ => panic!("enum not a struct type"),
+        }
+    }
+
+    pub fn into_vector_type(self) -> VectorType {
+        match self {
+            AnyTypeEnum::VectorType(typ) => typ,
+            _ => panic!("enum not a vector type"),
         }
     }
 
@@ -135,5 +184,111 @@ impl BasicTypeEnum {
             #[cfg(not(any(feature = "llvm3-6", feature = "llvm3-7")))]
             LLVMTypeKind::LLVMTokenTypeKind => unreachable!("Unsupported basic type: Token"),
         }
+    }
+
+    pub fn as_float_type(&self) -> &FloatType {
+        match *self {
+            BasicTypeEnum::FloatType(ref typ) => typ,
+            _ => panic!("not a float type"),
+        }
+    }
+
+    pub fn as_int_type(&self) -> &IntType {
+        match *self {
+            BasicTypeEnum::IntType(ref typ) => typ,
+            _ => panic!("not a int type"),
+        }
+    }
+
+    pub fn is_array_type(&self) -> bool {
+        match *self {
+            BasicTypeEnum::ArrayType(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_vector_type(&self) -> bool {
+        match *self {
+            BasicTypeEnum::VectorType(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn into_array_type(self) -> ArrayType {
+        match self {
+            BasicTypeEnum::ArrayType(typ) => typ,
+            _ => panic!("not a array type"),
+        }
+    }
+
+    pub fn into_float_type(self) -> FloatType {
+        match self {
+            BasicTypeEnum::FloatType(typ) => typ,
+            _ => panic!("not a float type"),
+        }
+    }
+
+    pub fn into_int_type(self) -> IntType {
+        match self {
+            BasicTypeEnum::IntType(typ) => typ,
+            _ => panic!("not a int type"),
+        }
+    }
+
+    pub fn into_pointer_type(self) -> PointerType {
+        match self {
+            BasicTypeEnum::PointerType(typ) => typ,
+            _ => panic!("not a pointer type"),
+        }
+    }
+
+    pub fn into_struct_type(self) -> StructType {
+        match self {
+            BasicTypeEnum::StructType(typ) => typ,
+            _ => panic!("not a struct type"),
+        }
+    }
+
+    pub fn into_vector_type(self) -> VectorType {
+        match self {
+            BasicTypeEnum::VectorType(typ) => typ,
+            _ => panic!("not a vector type"),
+        }
+    }
+}
+
+impl From<StructType> for BasicTypeEnum {
+    fn from(typ: StructType) -> Self {
+        BasicTypeEnum::StructType(typ)
+    }
+}
+
+impl From<ArrayType> for BasicTypeEnum {
+    fn from(typ: ArrayType) -> Self {
+        BasicTypeEnum::ArrayType(typ)
+    }
+}
+
+impl From<PointerType> for BasicTypeEnum {
+    fn from(typ: PointerType) -> Self {
+        BasicTypeEnum::PointerType(typ)
+    }
+}
+
+impl From<FloatType> for BasicTypeEnum {
+    fn from(typ: FloatType) -> Self {
+        BasicTypeEnum::FloatType(typ)
+    }
+}
+
+impl From<IntType> for BasicTypeEnum {
+    fn from(typ: IntType) -> Self {
+        BasicTypeEnum::IntType(typ)
+    }
+}
+
+impl From<VectorType> for BasicTypeEnum {
+    fn from(typ: VectorType) -> Self {
+        BasicTypeEnum::VectorType(typ)
     }
 }
