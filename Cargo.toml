@@ -57,9 +57,12 @@ experimental = ["static-alloc"]
 
 [dependencies]
 libc = "0.2"
-llvm-sys = "80.1"
 static-alloc = { version = "0.1", optional = true }
 lazy_static = "1.3.0"
+
+[dependencies.llvm-sys]
+git = "https://github.com/antoyo/llvm-sys.rs.git"
+version = "80.1"
 
 [badges]
 travis-ci = { repository = "TheDan64/inkwell" }
