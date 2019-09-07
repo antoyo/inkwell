@@ -741,7 +741,6 @@ fn test_atomicrmw() {
     assert!(result.is_err());
 }
 
-#[llvm_versions(3.9..=latest)]
 #[test]
 fn test_cmpxchg() {
     let context = Context::create();

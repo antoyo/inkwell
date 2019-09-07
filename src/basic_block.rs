@@ -1,7 +1,6 @@
 //! A `BasicBlock` is a container of instructions.
 
 use llvm_sys::core::{LLVMGetBasicBlockParent, LLVMGetBasicBlockTerminator, LLVMGetNextBasicBlock, LLVMInsertBasicBlock, LLVMIsABasicBlock, LLVMIsConstant, LLVMMoveBasicBlockAfter, LLVMMoveBasicBlockBefore, LLVMPrintTypeToString, LLVMPrintValueToString, LLVMTypeOf, LLVMDeleteBasicBlock, LLVMGetPreviousBasicBlock, LLVMRemoveBasicBlockFromParent, LLVMGetFirstInstruction, LLVMGetLastInstruction, LLVMGetTypeContext, LLVMBasicBlockAsValue};
-#[llvm_versions(3.9..=latest)]
 use llvm_sys::core::LLVMGetBasicBlockName;
 use llvm_sys::prelude::{LLVMValueRef, LLVMBasicBlockRef};
 
@@ -444,7 +443,6 @@ impl BasicBlock {
     ///
     /// assert_eq!(*bb.get_name(), *CString::new("entry").unwrap());
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn get_name(&self) -> &CStr {
         let ptr = unsafe {
             LLVMGetBasicBlockName(self.basic_block)

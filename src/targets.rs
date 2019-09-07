@@ -1,4 +1,3 @@
-#[llvm_versions(7.0..=latest)]
 use either::Either;
 use llvm_sys::target::{
     LLVMABIAlignmentOfType, LLVMABISizeOfType, LLVMByteOrder, LLVMByteOrdering,
@@ -8,7 +7,6 @@ use llvm_sys::target::{
     LLVMPointerSizeForAS, LLVMPreferredAlignmentOfGlobal, LLVMPreferredAlignmentOfType,
     LLVMSizeOfTypeInBits, LLVMStoreSizeOfType, LLVMTargetDataRef,
 };
-#[llvm_versions(4.0..=latest)]
 use llvm_sys::target_machine::LLVMCreateTargetDataLayout;
 use llvm_sys::target_machine::{
     LLVMAddAnalysisPasses, LLVMCodeGenFileType, LLVMCodeGenOptLevel, LLVMCodeModel,
@@ -305,7 +303,6 @@ impl Target {
 
     // TODOC: Called R600 in 3.6
     #[cfg(feature = "target-amdgpu")]
-    #[llvm_versions(3.7..=latest)]
     pub fn initialize_amd_gpu(config: &InitializationConfig) {
         use llvm_sys::target::{
             LLVMInitializeAMDGPUAsmParser, LLVMInitializeAMDGPUAsmPrinter,
@@ -446,29 +443,6 @@ impl Target {
         }
 
         // Disassembler status unknown
-    }
-
-    #[llvm_versions(3.6..=3.8)]
-    pub fn initialize_cpp_backend(config: &InitializationConfig) {
-        use llvm_sys::target::{
-            LLVMInitializeCppBackendTarget, LLVMInitializeCppBackendTargetInfo,
-            LLVMInitializeCppBackendTargetMC,
-        };
-
-        if config.base {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeCppBackendTarget() };
-        }
-
-        if config.info {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeCppBackendTargetInfo() };
-        }
-
-        if config.machine_code {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeCppBackendTargetMC() };
-        }
     }
 
     #[cfg(feature = "target-msp430")]
@@ -618,7 +592,6 @@ impl Target {
 
     // TODOC: Disassembler only supported in LLVM 4.0+
     #[cfg(feature = "target-bpf")]
-    #[llvm_versions(3.7..=latest)]
     pub fn initialize_bpf(config: &InitializationConfig) {
         use llvm_sys::target::{
             LLVMInitializeBPFAsmPrinter, LLVMInitializeBPFTarget, LLVMInitializeBPFTargetInfo,
@@ -659,7 +632,6 @@ impl Target {
     }
 
     #[cfg(feature = "target-lanai")]
-    #[llvm_versions(4.0..=latest)]
     pub fn initialize_lanai(config: &InitializationConfig) {
         use llvm_sys::target::{
             LLVMInitializeLanaiAsmParser, LLVMInitializeLanaiAsmPrinter,
@@ -698,43 +670,7 @@ impl Target {
         }
     }
 
-    // REVIEW: As it turns out; RISCV was accidentally built by default in 4.0 since
-    // it was meant to be marked experimental and so it was later removed from default
-    // builds in 5.0+. Since llvm-sys doesn't officially support any experimental targets
-    // we're going to make this 4.0 only for now so that it doesn't break test builds.
-    // We can revisit this issue if someone wants RISCV support in inkwell, or if
-    // llvm-sys starts supporting experimental llvm targets. See
-    // https://lists.llvm.org/pipermail/llvm-dev/2017-August/116347.html for more info
-    #[llvm_versions(4.0)]
-    pub fn initialize_riscv(config: &InitializationConfig) {
-        use llvm_sys::target::{
-            LLVMInitializeRISCVTarget, LLVMInitializeRISCVTargetInfo, LLVMInitializeRISCVTargetMC,
-        };
-
-        if config.base {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeRISCVTarget() };
-        }
-
-        if config.info {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeRISCVTargetInfo() };
-        }
-
-        // No asm printer
-
-        // No asm parser
-
-        // No disassembler
-
-        if config.machine_code {
-            let _guard = TARGET_LOCK.write().unwrap();
-            unsafe { LLVMInitializeRISCVTargetMC() };
-        }
-    }
-
     #[cfg(feature = "target-webassembly")]
-    #[llvm_versions(8.0..=latest)]
     pub fn initialize_webassembly(config: &InitializationConfig) {
         use llvm_sys::target::{
             LLVMInitializeWebAssemblyAsmParser, LLVMInitializeWebAssemblyAsmPrinter,
@@ -1033,7 +969,6 @@ impl TargetMachine {
         LLVMString::new(llvm_string)
     }
 
-    #[llvm_versions(7.0..=latest)]
     pub fn normalize_target_triple(triple: Either<&str, &CStr>) -> LLVMString {
         use llvm_sys::target_machine::LLVMNormalizeTargetTriple;
 
@@ -1057,7 +992,6 @@ impl TargetMachine {
     /// # Example Output
     ///
     /// `x86_64-pc-linux-gnu`
-    #[llvm_versions(7.0..=latest)]
     pub fn get_host_cpu_name() -> LLVMString {
         use llvm_sys::target_machine::LLVMGetHostCPUName;
 
@@ -1071,7 +1005,6 @@ impl TargetMachine {
     /// # Example Output
     ///
     /// `+sse2,+cx16,+sahf,-tbm`
-    #[llvm_versions(7.0..=latest)]
     pub fn get_host_cpu_features() -> LLVMString {
         use llvm_sys::target_machine::LLVMGetHostCPUFeatures;
 
@@ -1091,7 +1024,6 @@ impl TargetMachine {
     }
 
     /// Create TargetData from this target machine
-    #[llvm_versions(4.0..=latest)]
     pub fn get_target_data(&self) -> TargetData {
         let data_layout = unsafe { LLVMCreateTargetDataLayout(self.target_machine) };
 

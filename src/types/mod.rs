@@ -32,8 +32,6 @@ pub use crate::types::vec_type::VectorType;
 pub use crate::types::void_type::VoidType;
 pub(crate) use crate::types::traits::AsTypeRef;
 
-#[llvm_versions(3.7..=4.0)]
-use llvm_sys::core::LLVMDumpType;
 use llvm_sys::core::{LLVMAlignOf, LLVMGetTypeContext, LLVMFunctionType, LLVMArrayType, LLVMGetUndef, LLVMPointerType, LLVMPrintTypeToString, LLVMTypeIsSized, LLVMSizeOf, LLVMVectorType, LLVMGetElementType, LLVMConstNull};
 use llvm_sys::prelude::{LLVMTypeRef, LLVMValueRef};
 #[cfg(feature = "experimental")]
@@ -60,17 +58,6 @@ impl Type {
 
         Type {
             type_: type_,
-        }
-    }
-
-    // REVIEW: LLVM 5.0+ seems to have removed this function in release mode
-    // and so will fail to link when used. I've decided to remove it from 5.0+
-    // for now. We should consider removing it altogether since print_to_string
-    // could be used and manually written to stderr in rust...
-    #[llvm_versions(3.7..=4.0)]
-    fn print_to_stderr(&self) {
-        unsafe {
-            LLVMDumpType(self.type_);
         }
     }
 

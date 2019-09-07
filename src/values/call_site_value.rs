@@ -3,12 +3,10 @@ use llvm_sys::LLVMTypeKind;
 use llvm_sys::core::{LLVMIsTailCall, LLVMSetTailCall, LLVMGetTypeKind, LLVMTypeOf, LLVMSetInstructionCallConv, LLVMGetInstructionCallConv, LLVMSetInstrParamAlignment};
 use llvm_sys::prelude::LLVMValueRef;
 
-#[llvm_versions(3.9..=latest)]
 use crate::attributes::{Attribute};
 use crate::attributes::AttributeLoc;
 use crate::support::LLVMString;
 use crate::values::{AsValueRef, BasicValueEnum, InstructionValue, Value};
-#[llvm_versions(3.9..=latest)]
 use crate::values::FunctionValue;
 
 /// A value resulting from a function call. It may have function attributes applied to it.
@@ -133,7 +131,6 @@ impl CallSiteValue {
     /// call_site_value.add_attribute(AttributeLoc::Return, string_attribute);
     /// call_site_value.add_attribute(AttributeLoc::Return, enum_attribute);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn add_attribute(&self, loc: AttributeLoc, attribute: Attribute) {
         use llvm_sys::core::LLVMAddCallSiteAttribute;
 
@@ -165,7 +162,6 @@ impl CallSiteValue {
     ///
     /// assert_eq!(call_site_value.get_called_fn_value(), fn_value);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn get_called_fn_value(&self) -> FunctionValue {
         use llvm_sys::core::LLVMGetCalledValue;
 
@@ -203,7 +199,6 @@ impl CallSiteValue {
     ///
     /// assert_eq!(call_site_value.count_attributes(AttributeLoc::Return), 2);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn count_attributes(&self, loc: AttributeLoc) -> u32 {
         use llvm_sys::core::LLVMGetCallSiteAttributeCount;
 
@@ -240,7 +235,6 @@ impl CallSiteValue {
     /// assert_eq!(call_site_value.get_enum_attribute(AttributeLoc::Return, 1).unwrap(), enum_attribute);
     /// ```
     // SubTypes: -> Attribute<Enum>
-    #[llvm_versions(3.9..=latest)]
     pub fn get_enum_attribute(&self, loc: AttributeLoc, kind_id: u32) -> Option<Attribute> {
         use llvm_sys::core::LLVMGetCallSiteEnumAttribute;
 
@@ -283,7 +277,6 @@ impl CallSiteValue {
     /// assert_eq!(call_site_value.get_string_attribute(AttributeLoc::Return, "my_key").unwrap(), string_attribute);
     /// ```
     // SubTypes: -> Attribute<String>
-    #[llvm_versions(3.9..=latest)]
     pub fn get_string_attribute(&self, loc: AttributeLoc, key: &str) -> Option<Attribute> {
         use llvm_sys::core::LLVMGetCallSiteStringAttribute;
 
@@ -326,7 +319,6 @@ impl CallSiteValue {
     ///
     /// assert_eq!(call_site_value.get_enum_attribute(AttributeLoc::Return, 1), None);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn remove_enum_attribute(&self, loc: AttributeLoc, kind_id: u32) {
         use llvm_sys::core::LLVMRemoveCallSiteEnumAttribute;
 
@@ -363,7 +355,6 @@ impl CallSiteValue {
     ///
     /// assert_eq!(call_site_value.get_string_attribute(AttributeLoc::Return, "my_key"), None);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn remove_string_attribute(&self, loc: AttributeLoc, key: &str) {
         use llvm_sys::core::LLVMRemoveCallSiteStringAttribute;
 
@@ -396,7 +387,6 @@ impl CallSiteValue {
     ///
     /// assert_eq!(call_site_value.count_arguments(), 0);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn count_arguments(&self) -> u32 {
         use llvm_sys::core::LLVMGetNumArgOperands;
 

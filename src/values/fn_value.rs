@@ -1,8 +1,6 @@
 use llvm_sys::analysis::{LLVMVerifierFailureAction, LLVMVerifyFunction, LLVMViewFunctionCFG, LLVMViewFunctionCFGOnly};
 use llvm_sys::core::{LLVMIsAFunction, LLVMIsConstant, LLVMGetLinkage, LLVMGetPreviousFunction, LLVMGetNextFunction, LLVMGetParam, LLVMCountParams, LLVMGetLastParam, LLVMCountBasicBlocks, LLVMGetFirstParam, LLVMGetNextParam, LLVMGetBasicBlocks, LLVMAppendBasicBlock, LLVMDeleteFunction, LLVMGetLastBasicBlock, LLVMGetFirstBasicBlock, LLVMGetIntrinsicID, LLVMGetFunctionCallConv, LLVMSetFunctionCallConv, LLVMGetGC, LLVMSetGC, LLVMSetLinkage, LLVMSetParamAlignment, LLVMGetParams};
-#[llvm_versions(3.7..=latest)]
 use llvm_sys::core::{LLVMGetPersonalityFn, LLVMSetPersonalityFn};
-#[llvm_versions(3.9..=latest)]
 use llvm_sys::core::{LLVMAddAttributeAtIndex, LLVMGetAttributeCountAtIndex, LLVMGetEnumAttributeAtIndex, LLVMGetStringAttributeAtIndex, LLVMRemoveEnumAttributeAtIndex, LLVMRemoveStringAttributeAtIndex};
 use llvm_sys::prelude::{LLVMValueRef, LLVMBasicBlockRef};
 
@@ -10,7 +8,6 @@ use std::ffi::{CStr, CString};
 use std::mem::forget;
 use std::fmt;
 
-#[llvm_versions(3.9..=latest)]
 use crate::attributes::{Attribute, AttributeLoc};
 use crate::basic_block::BasicBlock;
 use crate::module::Linkage;
@@ -256,7 +253,6 @@ impl FunctionValue {
     }
 
     // TODOC: How this works as an exception handler
-    #[llvm_versions(3.9..=latest)]
     pub fn has_personality_function(&self) -> bool {
         use llvm_sys::core::LLVMHasPersonalityFn;
 
@@ -295,7 +291,6 @@ impl FunctionValue {
         FunctionValue::new(value)
     }
 
-    #[llvm_versions(3.7..=latest)]
     pub fn set_personality_function(&self, personality_fn: FunctionValue) {
         unsafe {
             LLVMSetPersonalityFn(self.as_value_ref(), personality_fn.as_value_ref())
@@ -357,7 +352,6 @@ impl FunctionValue {
     /// fn_value.add_attribute(AttributeLoc::Return, string_attribute);
     /// fn_value.add_attribute(AttributeLoc::Return, enum_attribute);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn add_attribute(&self, loc: AttributeLoc, attribute: Attribute) {
         unsafe {
             LLVMAddAttributeAtIndex(self.as_value_ref(), loc.get_index(), attribute.attribute)
@@ -385,7 +379,6 @@ impl FunctionValue {
     ///
     /// assert_eq!(fn_value.count_attributes(AttributeLoc::Return), 2);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn count_attributes(&self, loc: AttributeLoc) -> u32 {
         unsafe {
             LLVMGetAttributeCountAtIndex(self.as_value_ref(), loc.get_index())
@@ -410,7 +403,6 @@ impl FunctionValue {
     /// fn_value.add_attribute(AttributeLoc::Return, string_attribute);
     /// fn_value.remove_string_attribute(AttributeLoc::Return, "my_key");
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn remove_string_attribute(&self, loc: AttributeLoc, key: &str) {
         unsafe {
             LLVMRemoveStringAttributeAtIndex(self.as_value_ref(), loc.get_index(), key.as_ptr() as *const i8, key.len() as u32)
@@ -435,7 +427,6 @@ impl FunctionValue {
     /// fn_value.add_attribute(AttributeLoc::Return, enum_attribute);
     /// fn_value.remove_enum_attribute(AttributeLoc::Return, 1);
     /// ```
-    #[llvm_versions(3.9..=latest)]
     pub fn remove_enum_attribute(&self, loc: AttributeLoc, kind_id: u32) {
         unsafe {
             LLVMRemoveEnumAttributeAtIndex(self.as_value_ref(), loc.get_index(), kind_id)
@@ -462,7 +453,6 @@ impl FunctionValue {
     /// assert_eq!(fn_value.get_enum_attribute(AttributeLoc::Return, 1), Some(enum_attribute));
     /// ```
     // SubTypes: -> Option<Attribute<Enum>>
-    #[llvm_versions(3.9..=latest)]
     pub fn get_enum_attribute(&self, loc: AttributeLoc, kind_id: u32) -> Option<Attribute> {
         let ptr = unsafe {
             LLVMGetEnumAttributeAtIndex(self.as_value_ref(), loc.get_index(), kind_id)
@@ -495,7 +485,6 @@ impl FunctionValue {
     /// assert_eq!(fn_value.get_string_attribute(AttributeLoc::Return, "my_key"), Some(string_attribute));
     /// ```
     // SubTypes: -> Option<Attribute<String>>
-    #[llvm_versions(3.9..=latest)]
     pub fn get_string_attribute(&self, loc: AttributeLoc, key: &str) -> Option<Attribute> {
         let ptr = unsafe {
             LLVMGetStringAttributeAtIndex(self.as_value_ref(), loc.get_index(), key.as_ptr() as *const i8, key.len() as u32)

@@ -1,9 +1,7 @@
 use llvm_sys::core::{LLVMMDNode, LLVMMDString, LLVMIsAMDNode, LLVMIsAMDString, LLVMGetMDString, LLVMGetMDNodeNumOperands, LLVMGetMDNodeOperands, LLVMGetMDKindID};
 use llvm_sys::prelude::LLVMValueRef;
 
-#[llvm_versions(7.0..=latest)]
 use llvm_sys::prelude::LLVMMetadataRef;
-#[llvm_versions(7.0..=latest)]
 use llvm_sys::core::LLVMValueAsMetadata;
 
 use crate::support::LLVMString;
@@ -53,7 +51,6 @@ impl MetadataValue {
         }
     }
 
-    #[llvm_versions(7.0..=latest)]
     pub(crate) fn as_metadata_ref(&self) -> LLVMMetadataRef {
         unsafe {
             LLVMValueAsMetadata(self.as_value_ref())

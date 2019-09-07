@@ -1,3 +1,5 @@
+// based on 3fcc5946b219a6b990a372222ea302dd08f6017b
+
 //! Inkwell documentation is a work in progress.
 //!
 //! If you have any LLVM knowledge that could be used to improve these docs, we would greatly appreciate you opening an issue and/or a pull request on our [GitHub page](https://github.com/TheDan64/inkwell).
@@ -14,8 +16,6 @@ extern crate either;
 extern crate enum_methods;
 extern crate libc;
 extern crate llvm_sys;
-#[macro_use]
-extern crate inkwell_internal_macros;
 #[macro_use]
 extern crate lazy_static;
 
@@ -108,186 +108,262 @@ impl TryFrom<u32> for AddressSpace {
 
 // REVIEW: Maybe this belongs in some sort of prelude?
 /// This enum defines how to compare a `left` and `right` `IntValue`.
-#[llvm_enum(LLVMIntPredicate)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum IntPredicate {
     /// Equal
-    #[llvm_variant(LLVMIntEQ)]
     EQ,
 
     /// Not Equal
-    #[llvm_variant(LLVMIntNE)]
     NE,
 
     /// Unsigned Greater Than
-    #[llvm_variant(LLVMIntUGT)]
     UGT,
 
     /// Unsigned Greater Than or Equal
-    #[llvm_variant(LLVMIntUGE)]
     UGE,
 
     /// Unsigned Less Than
-    #[llvm_variant(LLVMIntULT)]
     ULT,
 
     /// Unsigned Less Than or Equal
-    #[llvm_variant(LLVMIntULE)]
     ULE,
 
     /// Signed Greater Than
-    #[llvm_variant(LLVMIntSGT)]
     SGT,
 
     /// Signed Greater Than or Equal
-    #[llvm_variant(LLVMIntSGE)]
     SGE,
 
     /// Signed Less Than
-    #[llvm_variant(LLVMIntSLT)]
     SLT,
 
     /// Signed Less Than or Equal
-    #[llvm_variant(LLVMIntSLE)]
     SLE,
+}
+
+impl IntPredicate {
+    pub fn new(int_pred: LLVMIntPredicate) -> Self {
+        int_pred.into()
+    }
+}
+
+impl From<IntPredicate> for LLVMIntPredicate {
+    fn from(int_pred: IntPredicate) -> Self {
+        match int_pred {
+            IntPredicate::EQ => LLVMIntPredicate::LLVMIntEQ,
+            IntPredicate::NE => LLVMIntPredicate::LLVMIntNE,
+            IntPredicate::UGT => LLVMIntPredicate::LLVMIntUGT,
+            IntPredicate::UGE => LLVMIntPredicate::LLVMIntUGE,
+            IntPredicate::ULT => LLVMIntPredicate::LLVMIntULT,
+            IntPredicate::ULE => LLVMIntPredicate::LLVMIntULE,
+            IntPredicate::SGT => LLVMIntPredicate::LLVMIntSGT,
+            IntPredicate::SGE => LLVMIntPredicate::LLVMIntSGE,
+            IntPredicate::SLT => LLVMIntPredicate::LLVMIntSLT,
+            IntPredicate::SLE => LLVMIntPredicate::LLVMIntSLE,
+        }
+    }
+}
+
+impl From<LLVMIntPredicate> for IntPredicate {
+    fn from(int_pred: LLVMIntPredicate) -> Self {
+        match int_pred {
+            LLVMIntPredicate::LLVMIntEQ => IntPredicate::EQ,
+            LLVMIntPredicate::LLVMIntNE => IntPredicate::NE,
+            LLVMIntPredicate::LLVMIntUGT => IntPredicate::UGT,
+            LLVMIntPredicate::LLVMIntUGE => IntPredicate::UGE,
+            LLVMIntPredicate::LLVMIntULT => IntPredicate::ULT,
+            LLVMIntPredicate::LLVMIntULE => IntPredicate::ULE,
+            LLVMIntPredicate::LLVMIntSGT => IntPredicate::SGT,
+            LLVMIntPredicate::LLVMIntSGE => IntPredicate::SGE,
+            LLVMIntPredicate::LLVMIntSLT => IntPredicate::SLT,
+            LLVMIntPredicate::LLVMIntSLE => IntPredicate::SLE,
+        }
+    }
 }
 
 // REVIEW: Maybe this belongs in some sort of prelude?
 /// Defines how to compare a `left` and `right` `FloatValue`.
-#[llvm_enum(LLVMRealPredicate)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum FloatPredicate {
     /// Returns true if `left` == `right` and neither are NaN
-    #[llvm_variant(LLVMRealOEQ)]
     OEQ,
 
     /// Returns true if `left` >= `right` and neither are NaN
-    #[llvm_variant(LLVMRealOGE)]
     OGE,
 
     /// Returns true if `left` > `right` and neither are NaN
-    #[llvm_variant(LLVMRealOGT)]
     OGT,
 
     /// Returns true if `left` <= `right` and neither are NaN
-    #[llvm_variant(LLVMRealOLE)]
     OLE,
 
     /// Returns true if `left` < `right` and neither are NaN
-    #[llvm_variant(LLVMRealOLT)]
     OLT,
 
     /// Returns true if `left` != `right` and neither are NaN
-    #[llvm_variant(LLVMRealONE)]
     ONE,
 
     /// Returns true if neither value is NaN
-    #[llvm_variant(LLVMRealORD)]
     ORD,
 
     /// Always returns false
-    #[llvm_variant(LLVMRealPredicateFalse)]
     PredicateFalse,
 
     /// Always returns true
-    #[llvm_variant(LLVMRealPredicateTrue)]
     PredicateTrue,
 
     /// Returns true if `left` == `right` or either is NaN
-    #[llvm_variant(LLVMRealUEQ)]
     UEQ,
 
     /// Returns true if `left` >= `right` or either is NaN
-    #[llvm_variant(LLVMRealUGE)]
     UGE,
 
     /// Returns true if `left` > `right` or either is NaN
-    #[llvm_variant(LLVMRealUGT)]
     UGT,
 
     /// Returns true if `left` <= `right` or either is NaN
-    #[llvm_variant(LLVMRealULE)]
     ULE,
 
     /// Returns true if `left` < `right` or either is NaN
-    #[llvm_variant(LLVMRealULT)]
     ULT,
 
     /// Returns true if `left` != `right` or either is NaN
-    #[llvm_variant(LLVMRealUNE)]
     UNE,
 
     /// Returns true if either value is NaN
-    #[llvm_variant(LLVMRealUNO)]
     UNO,
 }
 
+impl FloatPredicate {
+    pub fn new(float_pred: LLVMRealPredicate) -> Self {
+        float_pred.into()
+    }
+}
+
+impl From<FloatPredicate> for LLVMRealPredicate {
+    fn from(float_pred: FloatPredicate) -> Self {
+        match float_pred {
+            FloatPredicate::OEQ => LLVMRealPredicate::LLVMRealOEQ,
+            FloatPredicate::OGE => LLVMRealPredicate::LLVMRealOGE,
+            FloatPredicate::OGT => LLVMRealPredicate::LLVMRealOGT,
+            FloatPredicate::OLE => LLVMRealPredicate::LLVMRealOLE,
+            FloatPredicate::OLT => LLVMRealPredicate::LLVMRealOLT,
+            FloatPredicate::ONE => LLVMRealPredicate::LLVMRealONE,
+            FloatPredicate::ORD => LLVMRealPredicate::LLVMRealORD,
+            FloatPredicate::PredicateFalse => LLVMRealPredicate::LLVMRealPredicateFalse,
+            FloatPredicate::PredicateTrue => LLVMRealPredicate::LLVMRealPredicateTrue,
+            FloatPredicate::UEQ => LLVMRealPredicate::LLVMRealUEQ,
+            FloatPredicate::UGE => LLVMRealPredicate::LLVMRealUGE,
+            FloatPredicate::UGT => LLVMRealPredicate::LLVMRealUGT,
+            FloatPredicate::ULE => LLVMRealPredicate::LLVMRealULE,
+            FloatPredicate::ULT => LLVMRealPredicate::LLVMRealULT,
+            FloatPredicate::UNE => LLVMRealPredicate::LLVMRealUNE,
+            FloatPredicate::UNO => LLVMRealPredicate::LLVMRealUNO,
+        }
+    }
+}
+
+impl From<LLVMRealPredicate> for FloatPredicate {
+    fn from(float_pred: LLVMRealPredicate) -> Self {
+        match float_pred {
+            LLVMRealPredicate::LLVMRealOEQ => FloatPredicate::OEQ,
+            LLVMRealPredicate::LLVMRealOGE => FloatPredicate::OGE,
+            LLVMRealPredicate::LLVMRealOGT => FloatPredicate::OGT,
+            LLVMRealPredicate::LLVMRealOLE => FloatPredicate::OLE,
+            LLVMRealPredicate::LLVMRealOLT => FloatPredicate::OLT,
+            LLVMRealPredicate::LLVMRealONE => FloatPredicate::ONE,
+            LLVMRealPredicate::LLVMRealORD => FloatPredicate::ORD,
+            LLVMRealPredicate::LLVMRealPredicateFalse => FloatPredicate::PredicateFalse,
+            LLVMRealPredicate::LLVMRealPredicateTrue => FloatPredicate::PredicateTrue,
+            LLVMRealPredicate::LLVMRealUEQ => FloatPredicate::UEQ,
+            LLVMRealPredicate::LLVMRealUGE => FloatPredicate::UGE,
+            LLVMRealPredicate::LLVMRealUGT => FloatPredicate::UGT,
+            LLVMRealPredicate::LLVMRealULE => FloatPredicate::ULE,
+            LLVMRealPredicate::LLVMRealULT => FloatPredicate::ULT,
+            LLVMRealPredicate::LLVMRealUNE => FloatPredicate::UNE,
+            LLVMRealPredicate::LLVMRealUNO => FloatPredicate::UNO,
+        }
+    }
+}
+
 // REVIEW: Maybe this belongs in some sort of prelude?
-#[llvm_enum(LLVMAtomicOrdering)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum AtomicOrdering {
-    #[llvm_variant(LLVMAtomicOrderingNotAtomic)]
     NotAtomic,
-    #[llvm_variant(LLVMAtomicOrderingUnordered)]
     Unordered,
-    #[llvm_variant(LLVMAtomicOrderingMonotonic)]
     Monotonic,
-    #[llvm_variant(LLVMAtomicOrderingAcquire)]
     Acquire,
-    #[llvm_variant(LLVMAtomicOrderingRelease)]
     Release,
-    #[llvm_variant(LLVMAtomicOrderingAcquireRelease)]
     AcquireRelease,
-    #[llvm_variant(LLVMAtomicOrderingSequentiallyConsistent)]
     SequentiallyConsistent,
 }
 
-#[llvm_enum(LLVMAtomicRMWBinOp)]
+impl From<AtomicOrdering> for LLVMAtomicOrdering {
+    fn from(ordering: AtomicOrdering) -> Self {
+        match ordering {
+            AtomicOrdering::NotAtomic => LLVMAtomicOrdering::LLVMAtomicOrderingNotAtomic,
+            AtomicOrdering::Unordered => LLVMAtomicOrdering::LLVMAtomicOrderingUnordered,
+            AtomicOrdering::Monotonic => LLVMAtomicOrdering::LLVMAtomicOrderingMonotonic,
+            AtomicOrdering::Acquire => LLVMAtomicOrdering::LLVMAtomicOrderingAcquire,
+            AtomicOrdering::Release => LLVMAtomicOrdering::LLVMAtomicOrderingRelease,
+            AtomicOrdering::AcquireRelease => LLVMAtomicOrdering::LLVMAtomicOrderingAcquireRelease,
+            AtomicOrdering::SequentiallyConsistent => LLVMAtomicOrdering::LLVMAtomicOrderingSequentiallyConsistent,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum AtomicRMWBinOp {
     /// Stores to memory and returns the prior value.
-    #[llvm_variant(LLVMAtomicRMWBinOpXchg)]
     Xchg,
 
     /// Adds to the value in memory and returns the prior value.
-    #[llvm_variant(LLVMAtomicRMWBinOpAdd)]
     Add,
 
     /// Subtract a value off the value in memory and returns the prior value.
-    #[llvm_variant(LLVMAtomicRMWBinOpSub)]
     Sub,
 
     /// Bitwise and into memory and returns the prior value.
-    #[llvm_variant(LLVMAtomicRMWBinOpAnd)]
     And,
 
     /// Bitwise nands into memory and returns the prior value.
-    #[llvm_variant(LLVMAtomicRMWBinOpNand)]
     Nand,
 
     /// Bitwise ors into memory and returns the prior value.
-    #[llvm_variant(LLVMAtomicRMWBinOpOr)]
     Or,
 
     /// Bitwise xors into memory and returns the prior value.
-    #[llvm_variant(LLVMAtomicRMWBinOpXor)]
     Xor,
 
     /// Sets memory to the signed-greater of the value provided and the value in memory. Returns the value that was in memory.
-    #[llvm_variant(LLVMAtomicRMWBinOpMax)]
     Max,
 
     /// Sets memory to the signed-lesser of the value provided and the value in memory. Returns the value that was in memory.
-    #[llvm_variant(LLVMAtomicRMWBinOpMin)]
     Min,
 
     /// Sets memory to the unsigned-greater of the value provided and the value in memory. Returns the value that was in memory.
-    #[llvm_variant(LLVMAtomicRMWBinOpUMax)]
     UMax,
 
     /// Sets memory to the unsigned-lesser of the value provided and the value in memory. Returns the value that was in memory.
-    #[llvm_variant(LLVMAtomicRMWBinOpUMin)]
     UMin,
+}
+
+impl From<AtomicRMWBinOp> for LLVMAtomicRMWBinOp {
+    fn from(bin_op: AtomicRMWBinOp) -> Self {
+        match bin_op {
+            AtomicRMWBinOp::Xchg => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpXchg,
+            AtomicRMWBinOp::Add => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpAdd,
+            AtomicRMWBinOp::Sub => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpSub,
+            AtomicRMWBinOp::And => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpAnd,
+            AtomicRMWBinOp::Nand => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpNand,
+            AtomicRMWBinOp::Or => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpOr,
+            AtomicRMWBinOp::Xor => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpXor,
+            AtomicRMWBinOp::Max => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpMax,
+            AtomicRMWBinOp::Min => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpMin,
+            AtomicRMWBinOp::UMax => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpUMax,
+            AtomicRMWBinOp::UMin => LLVMAtomicRMWBinOp::LLVMAtomicRMWBinOpUMin,
+        }
+    }
 }
 
 /// Defines the optimization level used to compile a `Module`.

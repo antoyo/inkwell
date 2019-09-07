@@ -6,7 +6,6 @@ use self::inkwell::context::Context;
 use self::inkwell::module::Linkage::*;
 use self::inkwell::types::{StringRadix, StructType, VectorType};
 use self::inkwell::values::{InstructionOpcode::*, MetadataValue, FIRST_CUSTOM_METADATA_KIND_ID, VectorValue};
-#[llvm_versions(7.0..=latest)]
 use self::inkwell::comdat::ComdatSelectionKind;
 
 use std::convert::TryFrom;
@@ -785,7 +784,6 @@ fn test_global_byte_array() {
 
 #[test]
 fn test_globals() {
-    #[llvm_versions(7.0..=latest)]
     use self::inkwell::values::UnnamedAddress;
 
     let context = Context::create();
